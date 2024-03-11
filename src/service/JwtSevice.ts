@@ -13,7 +13,11 @@ class JwtService {
   }
 
   public static decodeJwtToken(token: string) {
-    return JWT.verify(token, process.env.JWT_SECRET_KEY) as JwtUser;
+    try {
+      return JWT.verify(token, process.env.JWT_SECRET_KEY) as JwtUser;
+    } catch (error) {
+      return null;
+    }
   }
 }
 
