@@ -33,6 +33,8 @@ const resolvers = {
   Mutation: {
     ...Tweet.resolvers.mutations,
   },
+  ...User.resolvers.foreignKeyResolver,
+  ...Tweet.resolvers.foreignKeyResolver,
 };
 
 export async function initServer() {

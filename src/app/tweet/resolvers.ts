@@ -1,3 +1,4 @@
+import { Tweet } from "@prisma/client";
 import { prismaClient } from "../../db";
 import CreateTweetPayload from "../../interface/CreateTweetPayload";
 import GraphqlContext from "../../interface/GraphqlContext";
@@ -21,4 +22,11 @@ const mutations = {
   },
 };
 
-export const resolvers = { mutations };
+const foreignKeyResolver = {
+  Tweet: {
+    author: (parent: Tweet) =>
+      prismaClient.user.findFirst({ where: { id: parent.authorId } }),
+  },
+};
+
+export const resolvers = { mutations, foreignKeyResolver };

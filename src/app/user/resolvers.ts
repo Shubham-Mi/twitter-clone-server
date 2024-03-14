@@ -3,6 +3,7 @@ import { prismaClient } from "../../db";
 import JwtService from "../../service/JwtSevice";
 import GoogleTokenResult from "../../interface/GoogleTokenResult";
 import GraphqlContext from "../../interface/GraphqlContext";
+import { User } from "@prisma/client";
 
 const queries = {
   verifyGoogleToken: async (parent: any, { token }: { token: string }) => {
@@ -49,4 +50,11 @@ const queries = {
   },
 };
 
-export const resolvers = { queries };
+const foreignKeyResolver = {
+  User: {
+    tweets: (parent: User) =>
+      prismaClient.tweet.findMany({ where: { author: { id: parent.id } } }),
+  },
+};
+
+export const resolvers = { queries, foreignKeyResolver };
