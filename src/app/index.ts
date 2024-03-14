@@ -15,7 +15,8 @@ const typeDefs = `#graphql
 
   type Query {
     ${HealthCheck.queries},
-    ${User.queries}
+    ${User.queries},
+    ${Tweet.queries}
   }
 
   type Mutation {
@@ -28,6 +29,7 @@ const resolvers = {
   Query: {
     ...HealthCheck.resolvers.queries,
     ...User.resolvers.queries,
+    ...Tweet.resolvers.queries,
   },
   // Mutation: send some data to the server
   Mutation: {

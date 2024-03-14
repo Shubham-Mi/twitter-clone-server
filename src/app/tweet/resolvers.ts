@@ -3,6 +3,17 @@ import { prismaClient } from "../../db";
 import CreateTweetPayload from "../../interface/CreateTweetPayload";
 import GraphqlContext from "../../interface/GraphqlContext";
 
+const queries = {
+  getAllUserTweets: (parent: any, {}: {}, ctx: GraphqlContext) => {
+    if (!ctx.user) throw new Error("User not logged in!");
+    const tweets = prismaClient.tweet.findMany({
+      where: { author: { id: ctx.user?.id } },
+      orderBy: { createdAt: "desc" },
+    });
+    return tweets;
+  },
+};
+
 const mutations = {
   createTweet: (
     parent: any,
@@ -29,4 +40,4 @@ const foreignKeyResolver = {
   },
 };
 
-export const resolvers = { mutations, foreignKeyResolver };
+export const resolvers = { queries, mutations, foreignKeyResolver };
