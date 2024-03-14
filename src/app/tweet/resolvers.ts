@@ -12,6 +12,9 @@ const queries = {
     });
     return tweets;
   },
+
+  getAllTweets: () =>
+    prismaClient.tweet.findMany({ orderBy: { createdAt: "desc" } }),
 };
 
 const mutations = {
