@@ -4,16 +4,22 @@ import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
 import bodyParser from "body-parser";
 import { User } from "./user";
+import { Tweet } from "./tweet";
 import { HealthCheck } from "./health";
 import GraphqlContext from "../interface/GraphqlContext";
 import JwtService from "../service/JwtSevice";
 
 const typeDefs = `#graphql
   ${User.types}
+  ${Tweet.types}
 
   type Query {
     ${HealthCheck.queries},
     ${User.queries}
+  }
+
+  type Mutation {
+    ${Tweet.mutations}
   }
 `;
 
@@ -24,6 +30,9 @@ const resolvers = {
     ...User.resolvers.queries,
   },
   // Mutation: send some data to the server
+  Mutation: {
+    ...Tweet.resolvers.mutations,
+  },
 };
 
 export async function initServer() {
