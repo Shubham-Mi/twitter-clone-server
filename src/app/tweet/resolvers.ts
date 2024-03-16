@@ -4,7 +4,7 @@ import CreateTweetPayload from "../../interface/CreateTweetPayload";
 import GraphqlContext from "../../interface/GraphqlContext";
 
 const queries = {
-  getUserTweets: (parent: any, {}: {}, ctx: GraphqlContext) => {
+  getCurrentUserTweets: (parent: any, {}: {}, ctx: GraphqlContext) => {
     if (!ctx.user) throw new Error("User not logged in!");
     const tweets = prismaClient.tweet.findMany({
       where: { author: { id: ctx.user?.id } },
@@ -12,6 +12,12 @@ const queries = {
     });
     return tweets;
   },
+
+  getUserTweets: (parent: any, { id }: { id: string }) =>
+    prismaClient.tweet.findMany({
+      where: { author: { id: id } },
+      orderBy: { createdAt: "desc" },
+    }),
 
   getAllTweets: () =>
     prismaClient.tweet.findMany({ orderBy: { createdAt: "desc" } }),

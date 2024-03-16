@@ -2,5 +2,7 @@ export const queries = `#graphql
 
   getAllTweets: [Tweet]
 
-  getUserTweets: [Tweet]
+  getCurrentUserTweets: [Tweet]
+
+  getUserTweets(id: String!): [Tweet]
 `;
