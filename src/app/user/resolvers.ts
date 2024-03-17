@@ -1,5 +1,5 @@
 import axios from "axios";
-import { prismaClient } from "../../db";
+import { prismaClient } from "../../client/db";
 import JwtService from "../../service/JwtSevice";
 import GoogleTokenResult from "../../interface/GoogleTokenResult";
 import GraphqlContext from "../../interface/GraphqlContext";

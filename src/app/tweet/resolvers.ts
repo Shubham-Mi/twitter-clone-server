@@ -1,5 +1,5 @@
 import { Tweet } from "@prisma/client";
-import { prismaClient } from "../../db";
+import { prismaClient } from "../../client/db";
 import CreateTweetPayload from "../../interface/CreateTweetPayload";
 import GraphqlContext from "../../interface/GraphqlContext";
 
