@@ -2,6 +2,10 @@ declare global {
   namespace NodeJS {
     interface ProcessEnv {
       JWT_SECRET_KEY: string;
+      AWS_DEFAULT_REGION: string;
+      AWS_S3_ACCESS_KEY: string;
+      AWS_S3_SECRET_KEY: string;
+      AWS_S3_BUCKET: string;
     }
   }
 }

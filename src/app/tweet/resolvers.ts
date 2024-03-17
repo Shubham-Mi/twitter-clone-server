@@ -2,6 +2,10 @@ import { Tweet } from "@prisma/client";
 import { prismaClient } from "../../client/db";
 import CreateTweetPayload from "../../interface/CreateTweetPayload";
 import GraphqlContext from "../../interface/GraphqlContext";
+import AllowedImageTypes from "../../enum/AllowedImageTypes";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { s3Client } from "../../client/aws";
+import AwsS3Service from "../../service/AwsS3Service";
 
 const queries = {
   getCurrentUserTweets: (parent: any, {}: {}, ctx: GraphqlContext) => {
@@ -21,6 +25,24 @@ const queries = {
 
   getAllTweets: () =>
     prismaClient.tweet.findMany({ orderBy: { createdAt: "desc" } }),
+
+  getSignedUrl: (
+    parent: any,
+    { imageName, imageType }: { imageName: string; imageType: string },
+    ctx: GraphqlContext
+  ) => {
+    if (!ctx.user || !ctx.user.id) throw new Error("User not logged in");
+    if (!(imageType in AllowedImageTypes))
+      throw new Error("Unsupported image type");
+
+    const signedUrl = getSignedUrl(
+      s3Client,
+      AwsS3Service.getPutObjectCommand(ctx.user.id, imageName),
+      { expiresIn: 300 }
+    );
+
+    return signedUrl;
+  },
 };
 
 const mutations = {

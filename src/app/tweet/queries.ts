@@ -5,4 +5,6 @@ export const queries = `#graphql
   getCurrentUserTweets: [Tweet]
 
   getUserTweets(id: String!): [Tweet]
+
+  getSignedUrl(imageName: String!, imageType: String!): String
 `;
