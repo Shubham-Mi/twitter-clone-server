@@ -6,6 +6,8 @@ import AllowedImageTypes from "../../enum/AllowedImageTypes";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { s3Client } from "../../client/aws";
 import AwsS3Service from "../../service/AwsS3Service";
+import UserService from "../../service/UserService";
+import TweetService from "../../service/TweetService";
 
 const queries = {
   getCurrentUserTweets: (parent: any, {}: {}, ctx: GraphqlContext) => {
@@ -18,13 +20,9 @@ const queries = {
   },
 
   getUserTweets: (parent: any, { id }: { id: string }) =>
-    prismaClient.tweet.findMany({
-      where: { author: { id: id } },
-      orderBy: { createdAt: "desc" },
-    }),
+    TweetService.getTweetsByAuthorId(id),
 
-  getAllTweets: () =>
-    prismaClient.tweet.findMany({ orderBy: { createdAt: "desc" } }),
+  getAllTweets: () => TweetService.getAllTweets(),
 
   getSignedUrl: (
     parent: any,
@@ -46,18 +44,15 @@ const queries = {
 };
 
 const mutations = {
-  createTweet: (
+  createTweet: async (
     parent: any,
     { payload }: { payload: CreateTweetPayload },
     ctx: GraphqlContext
   ) => {
     if (!ctx.user) throw new Error("User not logged in!");
-    const tweet = prismaClient.tweet.create({
-      data: {
-        content: payload.content,
-        imageUrl: payload.imageUrl,
-        author: { connect: { id: ctx.user.id } },
-      },
+    const tweet = await TweetService.createTweet({
+      ...payload,
+      userId: ctx.user.id,
     });
 
     return tweet;
@@ -66,8 +61,7 @@ const mutations = {
 
 const foreignKeyResolver = {
   Tweet: {
-    author: (parent: Tweet) =>
-      prismaClient.user.findFirst({ where: { id: parent.authorId } }),
+    author: (parent: Tweet) => UserService.getUserById(parent.authorId),
   },
 };
 
