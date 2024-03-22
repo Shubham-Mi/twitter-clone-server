@@ -43,6 +43,46 @@ class UserService {
   public static getUserById(id: string) {
     return prismaClient.user.findUnique({ where: { id } });
   }
+
+  public static async followUser(follower: string, following: string) {
+    await prismaClient.follows.create({
+      data: {
+        follower: { connect: { id: follower } },
+        following: { connect: { id: following } },
+      },
+    });
+  }
+
+  public static async unfollowUser(follower: string, following: string) {
+    await prismaClient.follows.delete({
+      where: {
+        followerId_followingId: {
+          followerId: follower,
+          followingId: following,
+        },
+      },
+    });
+  }
+
+  public static async getFollowers(userId: string) {
+    const result = await prismaClient.follows.findMany({
+      where: { following: { id: userId } },
+      include: {
+        follower: true,
+      },
+    });
+    return result.map((r) => r.follower);
+  }
+
+  public static async getFollowing(userId: string) {
+    const result = await prismaClient.follows.findMany({
+      where: { follower: { id: userId } },
+      include: {
+        following: true,
+      },
+    });
+    return result.map((r) => r.following);
+  }
 }
 
 export default UserService;

@@ -20,7 +20,8 @@ const typeDefs = `#graphql
   }
 
   type Mutation {
-    ${Tweet.mutations}
+    ${Tweet.mutations},
+    ${User.mutations}
   }
 `;
 
@@ -33,6 +34,7 @@ const resolvers = {
   },
   // Mutation: send some data to the server
   Mutation: {
+    ...User.resolvers.mutations,
     ...Tweet.resolvers.mutations,
   },
   ...User.resolvers.foreignKeyResolver,

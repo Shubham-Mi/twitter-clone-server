@@ -24,10 +24,36 @@ const queries = {
   ) => UserService.getUserById(id),
 };
 
-const foreignKeyResolver = {
-  User: {
-    tweets: (parent: User) => TweetService.getTweetsByAuthorId(parent.id),
+const mutations = {
+  followUser: async (
+    parent: any,
+    { userId }: { userId: string },
+    ctx: GraphqlContext
+  ) => {
+    const id = ctx.user?.id;
+    if (!id) throw new Error("Unauthenticated");
+    await UserService.followUser(id, userId);
+    return true;
+  },
+
+  unfollowUser: async (
+    parent: any,
+    { userId }: { userId: string },
+    ctx: GraphqlContext
+  ) => {
+    const id = ctx.user?.id;
+    if (!id) throw new Error("Unauthenticated");
+    await UserService.unfollowUser(id, userId);
+    return true;
   },
 };
 
-export const resolvers = { queries, foreignKeyResolver };
+const foreignKeyResolver = {
+  User: {
+    tweets: (parent: User) => TweetService.getTweetsByAuthorId(parent.id),
+    followers: (parent: User) => UserService.getFollowers(parent.id),
+    following: (parent: User) => UserService.getFollowing(parent.id),
+  },
+};
+
+export const resolvers = { queries, mutations, foreignKeyResolver };
