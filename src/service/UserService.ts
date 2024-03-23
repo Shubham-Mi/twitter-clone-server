@@ -3,6 +3,7 @@ import { prismaClient } from "../client/db";
 import GoogleTokenResult from "../interface/GoogleTokenResult";
 import JwtService from "./JwtSevice";
 import { User } from "@prisma/client";
+import { redisClient } from "../client/redis";
 
 class UserService {
   public static async verifyGoogleAuthToken(token: string) {

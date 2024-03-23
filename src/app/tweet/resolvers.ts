@@ -1,5 +1,4 @@
 import { Tweet } from "@prisma/client";
-import { prismaClient } from "../../client/db";
 import CreateTweetPayload from "../../interface/CreateTweetPayload";
 import GraphqlContext from "../../interface/GraphqlContext";
 import AllowedImageTypes from "../../enum/AllowedImageTypes";
@@ -8,21 +7,37 @@ import { s3Client } from "../../client/aws";
 import AwsS3Service from "../../service/AwsS3Service";
 import UserService from "../../service/UserService";
 import TweetService from "../../service/TweetService";
+import { redisClient } from "../../client/redis";
 
 const queries = {
-  getCurrentUserTweets: (parent: any, {}: {}, ctx: GraphqlContext) => {
+  getCurrentUserTweets: async (parent: any, {}: {}, ctx: GraphqlContext) => {
     if (!ctx.user) throw new Error("User not logged in!");
-    const tweets = prismaClient.tweet.findMany({
-      where: { author: { id: ctx.user?.id } },
-      orderBy: { createdAt: "desc" },
-    });
+    const cacheValue = await redisClient.get(`TWEETS:${ctx.user.id}`);
+    if (cacheValue) return JSON.parse(cacheValue);
+    const tweets = TweetService.getTweetsByAuthorId(ctx.user.id);
+    await redisClient.setex(
+      `TWEETS:${ctx.user.id}`,
+      300,
+      JSON.stringify(tweets)
+    );
     return tweets;
   },
 
-  getUserTweets: (parent: any, { id }: { id: string }) =>
-    TweetService.getTweetsByAuthorId(id),
+  getUserTweets: async (parent: any, { id }: { id: string }) => {
+    const cacheValue = await redisClient.get(`TWEETS:${id}`);
+    if (cacheValue) return JSON.parse(cacheValue);
+    const tweets = await TweetService.getTweetsByAuthorId(id);
+    await redisClient.setex(`TWEETS:${id}`, 300, JSON.stringify(tweets));
+    return tweets;
+  },
 
-  getAllTweets: () => TweetService.getAllTweets(),
+  getAllTweets: async () => {
+    const cacheValue = await redisClient.get("ALL_TWEETS");
+    if (cacheValue) return JSON.parse(cacheValue);
+    const tweets = await TweetService.getAllTweets();
+    await redisClient.set("ALL_TWEETS", JSON.stringify(tweets));
+    return tweets;
+  },
 
   getSignedUrl: (
     parent: any,
@@ -54,7 +69,8 @@ const mutations = {
       ...payload,
       userId: ctx.user.id,
     });
-
+    await redisClient.del("ALL_TWEETS");
+    await redisClient.del(`TWEETS:${ctx.user.id}`);
     return tweet;
   },
 };
