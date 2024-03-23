@@ -2,6 +2,7 @@ import axios from "axios";
 import { prismaClient } from "../client/db";
 import GoogleTokenResult from "../interface/GoogleTokenResult";
 import JwtService from "./JwtSevice";
+import { User } from "@prisma/client";
 
 class UserService {
   public static async verifyGoogleAuthToken(token: string) {
@@ -82,6 +83,38 @@ class UserService {
       },
     });
     return result.map((r) => r.following);
+  }
+
+  public static async getFollowRecomendation(userId: string) {
+    const result = await prismaClient.follows.findMany({
+      where: { follower: { id: userId } },
+      include: {
+        following: {
+          include: {
+            followers: {
+              include: {
+                following: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const recommendedUsers: User[] = [];
+    for (const myFollowing of result) {
+      for (const myFollowingsFollowing of myFollowing.following.followers) {
+        if (
+          userId !== myFollowingsFollowing.following.id &&
+          result.findIndex(
+            (el) => el.followingId === myFollowingsFollowing.followingId
+          ) < 0
+        ) {
+          recommendedUsers.push(myFollowingsFollowing.following);
+        }
+      }
+    }
+    return recommendedUsers;
   }
 }
 

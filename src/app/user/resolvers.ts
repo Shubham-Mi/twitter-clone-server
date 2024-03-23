@@ -53,6 +53,10 @@ const foreignKeyResolver = {
     tweets: (parent: User) => TweetService.getTweetsByAuthorId(parent.id),
     followers: (parent: User) => UserService.getFollowers(parent.id),
     following: (parent: User) => UserService.getFollowing(parent.id),
+    recommendedUsers: (parent: User, _: any, ctx: GraphqlContext) => {
+      if (!ctx.user) return [];
+      return UserService.getFollowRecomendation(parent.id);
+    },
   },
 };
 
