@@ -9,6 +9,7 @@
     "dev": "tsc-watch --onSuccess \"npm start\""
   },
   "devDependencies": {
+    "@flydotio/dockerfile": "^0.5.4",
     "@types/cors": "^2.8.17",
     "@types/jsonwebtoken": "^9.0.6",
     "prisma": "^5.11.0",
