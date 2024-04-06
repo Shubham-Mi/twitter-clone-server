@@ -102,14 +102,14 @@ class UserService {
       },
     });
 
+    const followingIds = new Set(result.map((follow) => follow.followingId));
     const recommendedUsers: User[] = [];
+
     for (const myFollowing of result) {
       for (const myFollowingsFollowing of myFollowing.following.followers) {
         if (
           userId !== myFollowingsFollowing.following.id &&
-          result.findIndex(
-            (el) => el.followingId === myFollowingsFollowing.followingId
-          ) < 0
+          !followingIds.has(myFollowingsFollowing.followingId)
         ) {
           recommendedUsers.push(myFollowingsFollowing.following);
         }
