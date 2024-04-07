@@ -66,6 +66,26 @@ class UserService {
     });
   }
 
+  public static async likeTweet(userId: string, tweetId: string) {
+    await prismaClient.like.create({
+      data: {
+        userId,
+        tweetId,
+      },
+    });
+  }
+
+  public static async unLikeTweet(userId: string, tweetId: string) {
+    await prismaClient.like.delete({
+      where: {
+        tweetId_userId: {
+          tweetId,
+          userId,
+        },
+      },
+    });
+  }
+
   public static async getFollowers(userId: string) {
     const result = await prismaClient.follows.findMany({
       where: { following: { id: userId } },

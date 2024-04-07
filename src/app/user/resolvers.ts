@@ -57,11 +57,34 @@ const mutations = {
     await redisClient.del(`RECOMMENDED_USERS:${ctx.user?.id}`);
     return true;
   },
+
+  likeTweet: async (
+    parent: any,
+    { tweetId }: { tweetId: string },
+    ctx: GraphqlContext
+  ) => {
+    const id = ctx.user?.id;
+    if (!id) throw new Error("Unauthenticated");
+    await UserService.likeTweet(id, tweetId);
+    return true;
+  },
+
+  unLikeTweet: async (
+    parent: any,
+    { tweetId }: { tweetId: string },
+    ctx: GraphqlContext
+  ) => {
+    const id = ctx.user?.id;
+    if (!id) throw new Error("Unauthenticated");
+    await UserService.unLikeTweet(id, tweetId);
+    return true;
+  },
 };
 
 const foreignKeyResolver = {
   User: {
     tweets: (parent: User) => TweetService.getTweetsByAuthorId(parent.id),
+    likedTweets: (parent: User) => TweetService.getLikedTweets(parent.id),
     followers: (parent: User) => UserService.getFollowers(parent.id),
     following: (parent: User) => UserService.getFollowing(parent.id),
     recommendedUsers: async (parent: User, _: any, ctx: GraphqlContext) => {
