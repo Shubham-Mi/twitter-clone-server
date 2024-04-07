@@ -105,6 +105,16 @@ class UserService {
     return result.map((r) => r.following);
   }
 
+  public static async getLikedUsers(tweetId: string) {
+    const result = await prismaClient.like.findMany({
+      where: { tweetId },
+      include: {
+        user: true,
+      },
+    });
+    return result.map((r) => r.user);
+  }
+
   public static async getFollowRecomendation(userId: string) {
     const result = await prismaClient.follows.findMany({
       where: { follower: { id: userId } },

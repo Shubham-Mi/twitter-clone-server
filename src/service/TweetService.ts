@@ -33,16 +33,6 @@ class TweetService {
     });
     return result.map((r) => r.tweet);
   }
-
-  public static async getLikedUsers(tweetId: string) {
-    const result = await prismaClient.like.findMany({
-      where: { tweetId },
-      include: {
-        user: true,
-      },
-    });
-    return result.map((r) => r.user);
-  }
 }
 
 export default TweetService;
