@@ -78,6 +78,7 @@ const mutations = {
 const foreignKeyResolver = {
   Tweet: {
     author: (parent: Tweet) => UserService.getUserById(parent.authorId),
+    likedBy: (parent: Tweet) => TweetService.getLikedUsers(parent.id),
   },
 };
 

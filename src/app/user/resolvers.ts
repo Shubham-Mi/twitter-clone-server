@@ -84,7 +84,7 @@ const mutations = {
 const foreignKeyResolver = {
   User: {
     tweets: (parent: User) => TweetService.getTweetsByAuthorId(parent.id),
-    likedTweets: (parent: User) => TweetService.getLikedTweets(parent.id),
+    likedTweets: (parent: User) => TweetService.getLikedTweetsByUser(parent.id),
     followers: (parent: User) => UserService.getFollowers(parent.id),
     following: (parent: User) => UserService.getFollowing(parent.id),
     recommendedUsers: async (parent: User, _: any, ctx: GraphqlContext) => {
