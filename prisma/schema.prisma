@@ -22,9 +22,20 @@ model User {
   tweets          Tweet[]
   followers       Follows[] @relation("follower")
   following       Follows[] @relation("following")
-  liked           Like[]
+  likedTweets     Like[]
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+}
+
+model Tweet {
+  id        String   @id @default(cuid())
+  content   String
+  imageUrl  String?
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
+  likedBy   Like[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Follows {
@@ -43,15 +54,4 @@ model Like {
   userId  String
 
   @@id([tweetId, userId])
-}
-
-model Tweet {
-  id        String   @id @default(cuid())
-  content   String
-  imageUrl  String?
-  author    User     @relation(fields: [authorId], references: [id])
-  authorId  String
-  likes     Like[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
